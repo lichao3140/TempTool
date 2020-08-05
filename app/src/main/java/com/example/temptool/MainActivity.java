@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 
@@ -18,9 +20,11 @@ import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends SerialPortActivity implements RadioGroup.OnCheckedChangeListener{
+public class MainActivity extends SerialPortActivity implements RadioGroup.OnCheckedChangeListener,
+        View.OnClickListener {
 
     public Context mContext;
+    private Button led_zc_up, led_zc_down;
 
     private Intent intentService;
     private UIThread uithread;
@@ -57,8 +61,9 @@ public class MainActivity extends SerialPortActivity implements RadioGroup.OnChe
             bRec[i] = buffer[i];
         }
         StringBuilder sMsg = new StringBuilder();
-        sMsg.append(SerialUtil.ByteArrToHex(bRec));
-        //Log.i("lichao", "sMsg:" + sMsg);
+        //sMsg.append(SerialUtil.ByteArrToHex(bRec));//十六进制
+        sMsg.append(bRec);//TXT文本
+        Log.i("lichao", "sMsg:" + sMsg);
 
 
         if (sMsg.toString().replace(" ", "").length() == 18) {
@@ -107,14 +112,20 @@ public class MainActivity extends SerialPortActivity implements RadioGroup.OnChe
         mContext = this;
         initView();
 
-        intentService = new Intent(mContext, ProximityService.class);
-        startService(intentService);
+//        intentService = new Intent(mContext, ProximityService.class);
+//        startService(intentService);
     }
 
     private void initView() {
         mReception = findViewById(R.id.et_show_temperature);
         rg_select_type = findViewById(R.id.rg_select_type);
         rg_select_type.setOnCheckedChangeListener(this);
+
+        led_zc_up = findViewById(R.id.led_zc_up);
+        led_zc_down = findViewById(R.id.led_zc_down);
+
+        led_zc_up.setOnClickListener(this);
+        led_zc_down.setOnClickListener(this);
     }
 
     @Override
@@ -157,7 +168,8 @@ public class MainActivity extends SerialPortActivity implements RadioGroup.OnChe
      * @param send_str
      */
     private void replayMsg(String send_str) {
-        byte[] bOutArray = SerialUtil.toByteArray(send_str);
+        //byte[] bOutArray = SerialUtil.toByteArray(send_str);//十六进制
+        byte[] bOutArray = send_str.getBytes();// TXT文本
         try {
             mOutputStream.write(bOutArray);
         } catch (IOException e) {
@@ -173,6 +185,18 @@ public class MainActivity extends SerialPortActivity implements RadioGroup.OnChe
                 break;
             case R.id.rb_select_version:
                 select_type = 2;
+                break;
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.led_zc_up:
+                replayMsg("GXL210");
+                break;
+            case R.id.led_zc_down:
+                replayMsg("GXL21F");
                 break;
         }
     }

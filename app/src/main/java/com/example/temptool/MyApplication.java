@@ -19,7 +19,7 @@ public class MyApplication extends Application {
             String packageName = getPackageName();
             SharedPreferences sp = getSharedPreferences(packageName + "_preferences", MODE_PRIVATE);
             String path = sp.getString("DEVICE", "/dev/ttyS1");
-            int baudrate = Integer.decode(sp.getString("BAUDRATE", "9600"));
+            int baudrate = Integer.decode(sp.getString("BAUDRATE", "115200"));
 
             /* Check parameters */
             if ((path.length() == 0) || (baudrate == -1)) {
